@@ -6,35 +6,51 @@
             [receipts-native.handlers]
             [receipts-native.subs]))
 
-(def ReactNative (js/require "react-native"))
+(def react-native (js/require "react-native"))
+(def native-base (js/require "native-base"))
 
-(defn get-react-property [name]
-  (oops/oget+ ReactNative name))
 
 (defn adapt-class [class]
   (when class
     (r/adapt-react-class class)))
 
-(defn get-class [name]
-  (adapt-class (get-react-property name)))
-
-(def app-registry (.-AppRegistry ReactNative))
-(def text (get-class "Text"))
-(def view (get-class "View"))
-(def image (get-class "Image"))
-(def touchable-highlight (get-class "TouchableHighlight"))
-(def Alert (.-Alert ReactNative))
-
-(def picker (get-class "Picker"))
-(def picker-item (adapt-class (.-Item (get-react-property "Picker"))))
-
-(def navigator (get-class "NavigatorIOS"))
-(def scroll (get-class "ScrollView"))
-(def input (get-class "TextInput"))
-(def list-view (get-class "ListView"))
+(defn get-class [module name]
+  (adapt-class (oops/oget+ module name)))
 
 
-(def text-input-class (get-class "TextInput"))
+(def Button (get-class native-base "Button"))
+(def Body (get-class native-base "Body"))
+(def Title (get-class native-base "Title"))
+(def Container (get-class native-base "Container"))
+(def Content (get-class native-base "Content"))
+(def Header (get-class native-base "Header"))
+(def Tabs (get-class native-base "Tabs"))
+(def Tab (get-class native-base "Tab"))
+(def Text (get-class native-base "Text"))
+(def Left (get-class native-base "Left"))
+(def Right (get-class native-base "Right"))
+(def Icon (get-class native-base "Icon"))
+(def Footer (get-class native-base "Footer"))
+(def FooterTab (get-class native-base "FooterTab"))
+
+
+(def app-registry (.-AppRegistry react-native))
+(def text (get-class react-native "Text"))
+(def view (get-class react-native "View"))
+(def image (get-class react-native "Image"))
+(def touchable-highlight (get-class react-native "TouchableHighlight"))
+(def Alert (.-Alert react-native))
+
+(def picker (get-class react-native "Picker"))
+(def picker-item (adapt-class (.-Item (oops/oget+ react-native "Picker"))))
+
+(def navigator (get-class react-native "NavigatorIOS"))
+(def scroll (get-class react-native "ScrollView"))
+(def input (get-class react-native "TextInput"))
+(def list-view (get-class react-native "ListView"))
+
+
+(def text-input-class (get-class react-native "TextInput"))
 
 (defn text-input [{:keys [font style] :as opts
                    :or   {font :default}} text]
@@ -50,7 +66,7 @@
 
 (defn create-style[s]
   (let [s1 (reduce #(assoc %1 (%2 0) (ru/camelify-map-keys (%2 1))) {} s)]
-    (js->clj (.create (.-StyleSheet ReactNative) (clj->js s1)))))
+    (js->clj (.create (.-StyleSheet react-native) (clj->js s1)))))
 
 (enable-console-print!)
 
@@ -75,12 +91,42 @@
                       :border-radius 5
                       :margin 10}}))
 
-(defn alert [title content]
-  (.alert Alert title content))
+(defn alert [content]
+  (.alert Alert (str "Alert: ")
+          content
+          (clj->js [{:text "dismiss" :onPress identity}])))
 
 (defn app-root []
   (let [greeting (subscribe [:get-greeting])]
     (fn []
+      [Container
+       [Header {:hasTabs true}
+        [Left
+         [Button {:transparent true :onPress #(alert "menu")}
+          [Icon {:name "menu"}]]]
+        [Body
+         [Title "Receipts v4.0"]]
+        [Right]]
+       [Tabs
+        [Tab {:heading "Receipts"}
+         [text "Fake content 1"]]
+        [Tab {:heading "Edit"}
+         [text "Fake content 2"]]
+        [Tab {:heading "History"}
+         [text "Fake content 3"]]
+        [Tab {:heading "About"}
+         [text "Fake content 4"]]
+        [Tab {:heading "Setup"}
+         [text "Fake content 5"]]]
+       [Footer
+        [FooterTab
+         [Button
+          [Icon {:name "paper"}]]
+         [Button
+          [Icon {:name "map"}]]
+         [Button
+          [Icon {:name "keypad"}]]]]]
+      #_
       [scroll {:always-bounce-vertical true
                :bounces true
                :style (styles "fullscreen")}
@@ -90,17 +136,14 @@
                         :height 350}}]
         [picker {:style {:width 350 :height 50 :margin 10}
                  :selected-value :b
-                 :on-value-change #(alert "Picked" (str "Got: " %1 ", pos=" %2))}
+                 :on-value-change #(alert (str "Picked: " %1 ", pos=" %2))}
          [picker-item {:value :a :label "Alabama"}]
          [picker-item {:value :b :label "Baltimore"}]
          [picker-item {:value :c :label "Canada"}]]
         [text-input-class]
-        [image {:source (js/require "./assets/images/cljs.png")
-                :style {:width 350
-                        :height 350}}]
         [text {:style {:font-size 30 :font-weight "100" :margin-bottom 20 :text-align "center"}} @greeting]
         [touchable-highlight {:style {:background-color "#999" :padding 10 :border-radius 5}
-                              :on-press #(alert "HELLO!" "Hello world")}
+                              :on-press #(alert "Hello world")}
          [text {:style {:color "white" :text-align "center" :font-weight "bold"}} "press me"]]]])))
 
 (defn init []
