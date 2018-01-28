@@ -1,5 +1,6 @@
 (ns receipts-native.core
-  (:require [reagent.core :as r]
+  (:require [oops.core :as oops]
+            [reagent.core :as r]
             [reagent.impl.component :as ru]  ;; [TODO] ??
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]
             [receipts-native.handlers]
@@ -8,7 +9,7 @@
 (def ReactNative (js/require "react-native"))
 
 (defn get-react-property [name]
-  (aget ReactNative name))
+  (oops/oget+ ReactNative name))
 
 (defn adapt-class [class]
   (when class
@@ -30,9 +31,7 @@
 (def navigator (get-class "NavigatorIOS"))
 (def scroll (get-class "ScrollView"))
 (def input (get-class "TextInput"))
-(def switch (get-class "SwitchIOS"))
 (def list-view (get-class "ListView"))
-(def slider (get-class "SliderIOS"))
 
 
 (def text-input-class (get-class "TextInput"))
