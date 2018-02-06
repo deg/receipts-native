@@ -19,7 +19,8 @@
                       "rebuild-modules" ["run" "-m" "user" "--rebuild-modules"]
                       "prod-build"      ^{:doc "Recompile code with prod profile."}
                                         ["with-profile" "prod" "cljsbuild" "once" "main"]}
-            :profiles {:dev  {:dependencies [[figwheel-sidecar "0.5.14"]
+            :profiles {:dev  {:dependencies [[binaryage/devtools "0.9.8"]
+                                             [figwheel-sidecar "0.5.14"]
                                              [com.cemerick/piggieback "0.2.1"]]
                               :source-paths ["src" "env/dev"]
                               :cljsbuild    {:builds [{:id           "main"
@@ -28,6 +29,8 @@
                                                        :compiler     {:output-to     "target/expo/not-used.js"
                                                                       :main          "env.expo.main"
                                                                       :output-dir    "target/expo"
+                                                                      :preloads      [devtools.preload]
+
                                                                       :optimizations :none}}]}
                               :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}
                        :prod {:cljsbuild {:builds [{:id           "main"
