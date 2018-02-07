@@ -1,5 +1,17 @@
 ## receipts-native
 
+Learning project.
+
+This is a re-working of my Receipts app in React Native.
+So far, just the GUI, and not much of that. But, I'll slowly add to it as I have time.
+
+See [React Native in
+ClojureScript](https://github.com/deg/clojure-then-you-think/wiki/React-Native-in-ClojureScript)
+for notes I'm writing as I learn this platform.
+
+
+## Template notes
+
 ### Usage
 
 #### Install Expo [XDE and mobile client](https://docs.expo.io/versions/v15.0.0/introduction/installation.html)

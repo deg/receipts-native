@@ -72,9 +72,16 @@
 (def vendors ["Ace" "Bally" "Crazy Eddie" "Deals-r-us"])
 
 (defn dropdown-input [{:keys [items prompt] :as params}]
-  [View   ;; [TODO] This doesn't work, use View for now.    Item {:inlineLabel true}
-   [Label prompt]
-   (into [Picker params]
+  [View   ;; [TODO] Item doesn't work, use View with styling for now.    Item {:inlineLabel true}
+        {:style {:flexDirection "row"
+                 :borderWidth 0
+                 :borderBottomWidth 0.666
+                 :padding 0
+                 :borderColor "#d9d5dc"
+                 :marginLeft 2}}
+   [Label {:style {:width "20%" :paddingTop 12 :color "#575757"}} prompt]
+   (into [Picker (assoc params :style {:width "30%"
+                                       :padding 0})]
          (map (fn [li]
                 [Item {:label li :value li}])
               items))])
@@ -106,7 +113,11 @@
        [Tabs
         [Tab {:heading "Receipts"}
          [ScrollView {}
-          [Calendar {:monthFormat "MMMM yyyy"
+          [Calendar {:style {:borderWidth 1
+                             :borderBottomWidth 0.666
+                             :padding 0
+                             :borderColor "#d9d5dc"}
+                     :monthFormat "MMMM yyyy"
                      :minDate "2018-01-01"
                      :maxDate (js/Date.)
                      :onDayPress #(swap! receipt assoc :date (js->clj % :keywordize-keys true))
@@ -120,11 +131,18 @@
           (receipt-dropdown "Currency" :currency currencies)
           (receipt-dropdown "Category" :category categories)
           (receipt-dropdown "Vendor" :vendor vendors)
-          [labelled-item {:last false} "Comment"
+          [labelled-item {} "Comment"
            [Input {:multiline true
-                   :numberOfLines 2}]]]]
+                   :numberOfLines 2}]]
+          [Button {:transparent true
+                   :primary true
+                   :onPress #(js/alert "done!")}
+           [Text "Submit"]]]]
         [Tab {:heading "Edit"}
          [Text "Fake content 2"]
+         [Button {:danger true
+                  :onPress #(js/alert "done!")}
+          [Text "Submit"]]
          [ListNB
           [ListItem [Text "a"]]
           [ListItem [Text "b"]]]
