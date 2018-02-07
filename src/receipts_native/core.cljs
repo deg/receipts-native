@@ -6,9 +6,9 @@
             [receipts-native.handlers]
             [receipts-native.subs]))
 
-(def react-native (js/require "react-native"))
-(def native-base (js/require "native-base"))
-(def modal-dropdown (js/require "react-native-modal-dropdown"))
+(defonce react-native (js/require "react-native"))
+(defonce native-base (js/require "native-base"))
+(defonce native-calendar (js/require "react-native-calendars"))
 
 
 (defn adapt-class [class]
@@ -35,6 +35,7 @@
 (def Header     (get-class native-base "Header"))
 (def Icon       (get-class native-base "Icon"))
 (def Input      (get-class native-base "Input"))
+(def InputGroup (get-class native-base "InputGroup"))
 (def Item       (get-class native-base "Item"))
 (def Label      (get-class native-base "Label"))
 (def ListNB     (get-class native-base "List"))
@@ -46,6 +47,8 @@
 (def Tabs       (get-class native-base "Tabs"))
 (def Text       (get-class native-base "Text"))
 (def Title      (get-class native-base "Title"))
+
+(def Calendar   (get-class native-calendar "Calendar"))
 
 
 (defn alert [content]
@@ -60,18 +63,34 @@
    component])
 
 
+(def sources ["v1234" "mc5678" "cash"])
+
 (def currencies ["EUR" "GBP" "NIS" "USD"])
 
+(def categories ["Car" "Entertainment" "Food" "Home"])
+
+(def vendors ["Ace" "Bally" "Crazy Eddie" "Deals-r-us"])
+
 (defn dropdown-input [{:keys [items prompt] :as params}]
-  [View #_Item {:inlineLabel true}
+  [View   ;; [TODO] This doesn't work, use View for now.    Item {:inlineLabel true}
    [Label prompt]
    (into [Picker params]
          (map (fn [li]
                 [Item {:label li :value li}])
               items))])
 
-(defonce receipt (r/atom {:price "42"
-                         :currency "NIS"}))
+
+(defonce receipt (r/atom {:date "2018-02-07";(js/Date.)
+                          :source "mc5678"
+                          :price "42"
+                          :currency "NIS"}))
+
+(defn receipt-dropdown [prompt key choices]
+  (dropdown-input {:prompt prompt
+                   :items choices
+                   :mode "dialog"
+                   :selected-value (key @receipt)
+                   :onValueChange #(swap! receipt assoc key %1)}))
 
 (defn app-root []
   (let [greeting (subscribe [:get-greeting])]
@@ -86,34 +105,29 @@
         [Right]]
        [Tabs
         [Tab {:heading "Receipts"}
-         [Form {}
-          [labelled-item {} "Source"
-           [Input {}]]
-          [labelled-item {} "Date"
-           [Input {}]]
+         [ScrollView {}
+          [Calendar {:monthFormat "MMMM yyyy"
+                     :minDate "2018-01-01"
+                     :maxDate (js/Date.)
+                     :onDayPress #(swap! receipt assoc :date (js->clj % :keywordize-keys true))
+                     :markedDates {(get-in @receipt [:date :dateString]) {:selected true}}}]
+          (receipt-dropdown "Source" :source sources)
           [labelled-item {} "Price"
            [Input {:keyboardType "numeric"
                    :maxLength 7
                    :onChangeText #(swap! receipt assoc :price %1)
                    :value (:price @receipt)}]]
-          (dropdown-input {:prompt "Currency"
-                           :items currencies
-                           :mode "dialog"
-                           :onValueChange #(js/console.log "Gotti:" %)})
-          [labelled-item {}
-           "Category"
-           [Input {}]]
-          [labelled-item {:last false}
-           "Comment"
+          (receipt-dropdown "Currency" :currency currencies)
+          (receipt-dropdown "Category" :category categories)
+          (receipt-dropdown "Vendor" :vendor vendors)
+          [labelled-item {:last false} "Comment"
            [Input {:multiline true
                    :numberOfLines 2}]]]]
         [Tab {:heading "Edit"}
          [Text "Fake content 2"]
          [ListNB
           [ListItem [Text "a"]]
-          [ListItem [Text "b"]]
-          ]
-         #_[simple-list currencies]
+          [ListItem [Text "b"]]]
          [Text "And more"]]
         [Tab {:heading "History"}
          [Text "Fake content 3"]]
