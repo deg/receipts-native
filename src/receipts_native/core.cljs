@@ -1,5 +1,7 @@
 (ns receipts-native.core
-  (:require [oops.core :as oops]
+  (:require [cljs-time.core :as time]
+            [cljs-time.coerce :refer [from-date to-date]]
+            [oops.core :as oops]
             [reagent.core :as r]
             [reagent.impl.component :as ru]  ;; [TODO] ??
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]
@@ -8,7 +10,7 @@
 
 (defonce react-native (js/require "react-native"))
 (defonce native-base (js/require "native-base"))
-(defonce native-calendar (js/require "react-native-calendars"))
+(defonce native-calendar-strip (js/require "react-native-calendar-strip"))
 
 
 (defn adapt-class [class]
@@ -48,8 +50,7 @@
 (def Text       (get-class native-base "Text"))
 (def Title      (get-class native-base "Title"))
 
-(def Calendar   (get-class native-calendar "Calendar"))
-
+(def CalendarStrip (get-class native-calendar-strip "default"))
 
 (defn alert [content]
   (.alert Alert (str "Alert: ")
@@ -87,10 +88,29 @@
               items))])
 
 
-(defonce receipt (r/atom {:date "2018-02-07";(js/Date.)
+(defonce receipt (r/atom {:date (time/today)
                           :source "mc5678"
                           :price "42"
                           :currency "NIS"}))
+
+(defn next-day [cljs-date]
+  (time/plus cljs-date (time/days 1)))
+
+(defn week-start [cljs-date]
+  (time/minus cljs-date
+              (time/days (-> cljs-date time/day-of-week (mod 7)))))
+
+(defn next-week
+  ([cljs-date]
+   (next-week cljs-date 1))
+  ([cljs-date weeks]
+   (time/plus (week-start cljs-date) (time/days (* weeks 7)))))
+
+(defn prev-week
+  ([cljs-date]
+   (prev-week cljs-date 1))
+  ([cljs-date weeks]
+   (time/minus (week-start cljs-date) (time/days (* weeks 7)))))
 
 (defn receipt-dropdown [prompt key choices]
   (dropdown-input {:prompt prompt
@@ -98,6 +118,30 @@
                    :mode "dialog"
                    :selected-value (key @receipt)
                    :onValueChange #(swap! receipt assoc key %1)}))
+
+(defn log1 [prompt x]
+  (js/console.log prompt x)
+  x)
+
+(defn small-calendar [receipt]
+  (let [date (:date @receipt)
+        today (time/today)]
+    [CalendarStrip {:style {:borderWidth 1
+                            :borderBottomWidth 0.666
+                            :padding 0
+                            :borderColor "#d9d5dc"}
+                    :startingDate (-> today week-start to-date)
+                    :selectedDate (to-date date)
+                    :useIsoWeekday false
+                    :minDate (-> today prev-week (time/earliest date) to-date)
+                    :maxDate (to-date today)
+                    :datesBlacklist [{:start (-> today next-day to-date)
+                                      :end   (-> today next-week to-date)}]
+                    :dateNumberStyle {:color "black"}
+                    :highlightDateNumberStyle {:color "red"}
+                    :disabledDateNumberStyle {:color "grey"}
+                    :styleWeekend false
+                    :onDateSelected #(swap! receipt assoc :date (from-date (.toDate %)))}]))
 
 (defn app-root []
   (let [greeting (subscribe [:get-greeting])]
@@ -113,15 +157,7 @@
        [Tabs
         [Tab {:heading "Receipts"}
          [ScrollView {}
-          [Calendar {:style {:borderWidth 1
-                             :borderBottomWidth 0.666
-                             :padding 0
-                             :borderColor "#d9d5dc"}
-                     :monthFormat "MMMM yyyy"
-                     :minDate "2018-01-01"
-                     :maxDate (js/Date.)
-                     :onDayPress #(swap! receipt assoc :date (js->clj % :keywordize-keys true))
-                     :markedDates {(get-in @receipt [:date :dateString]) {:selected true}}}]
+          [small-calendar receipt]
           (receipt-dropdown "Source" :source sources)
           [labelled-item {} "Price"
            [Input {:keyboardType "numeric"
@@ -136,7 +172,7 @@
                    :numberOfLines 2}]]
           [Button {:transparent true
                    :primary true
-                   :onPress #(js/alert "done!")}
+                   :onPress #(js/alert (str "done! " @receipt))}
            [Text "Submit"]]]]
         [Tab {:heading "Edit"}
          [Text "Fake content 2"]
