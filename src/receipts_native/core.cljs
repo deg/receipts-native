@@ -141,7 +141,7 @@
                     :highlightDateNumberStyle {:color "red"}
                     :disabledDateNumberStyle {:color "grey"}
                     :styleWeekend false
-                    :onDateSelected #(swap! receipt assoc :date (from-date (.toDate %)))}]))
+                    :onDateSelected #(swap! receipt assoc :date (from-date (oops/ocall % "toDate")))}]))
 
 (defn app-root []
   (let [greeting (subscribe [:get-greeting])]
