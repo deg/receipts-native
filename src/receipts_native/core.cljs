@@ -72,20 +72,25 @@
 
 (def vendors ["Ace" "Bally" "Crazy Eddie" "Deals-r-us"])
 
+(def for-whom ["David" "Agatha" "Betsy" "Carol"])
+
 (defn dropdown-input [{:keys [items prompt] :as params}]
-  [View   ;; [TODO] Item doesn't work, use View with styling for now.    Item {:inlineLabel true}
-        {:style {:flexDirection "row"
-                 :borderWidth 0
-                 :borderBottomWidth 0.666
-                 :padding 0
-                 :borderColor "#d9d5dc"
-                 :marginLeft 2}}
-   [Label {:style {:width "20%" :paddingTop 12 :color "#575757"}} prompt]
-   (into [Picker (assoc params :style {:width "30%"
-                                       :padding 0})]
-         (map (fn [li]
-                [Item {:label li :value li}])
-              items))])
+  (let [picker (into [Picker (assoc params :style {:width "30%"
+                                                   :padding 0})]
+                     (map (fn [li]
+                            [Item {:label li :value li}])
+                          items))]
+    (if prompt
+      [View   ;; [TODO] Item doesn't work, use View with styling for now.    Item {:inlineLabel true}
+       {:style {:flexDirection "row"
+                :borderWidth 0
+                :borderBottomWidth 0.666
+                :padding 0
+                :borderColor "#d9d5dc"
+                :marginLeft 2}}
+       [Label {:style {:width "20%" :paddingTop 12 :color "#575757"}} prompt]
+       picker]
+      picker)))
 
 
 (defonce receipt (r/atom {:date (time/today)
@@ -160,20 +165,22 @@
           [small-calendar receipt]
           (receipt-dropdown "Source" :source sources)
           [labelled-item {} "Price"
-           [Input {:keyboardType "numeric"
-                   :maxLength 7
-                   :onChangeText #(swap! receipt assoc :price %1)
-                   :value (:price @receipt)}]]
-          (receipt-dropdown "Currency" :currency currencies)
-          (receipt-dropdown "Category" :category categories)
-          (receipt-dropdown "Vendor" :vendor vendors)
+           [View {:style {:flexDirection "row"}}
+            [Input {:keyboardType "numeric"
+                    :maxLength 7
+                    :onChangeText #(swap! receipt assoc :price %1)
+                    :value (:price @receipt)}]
+            [receipt-dropdown nil :currency currencies]]]
+          [receipt-dropdown "Category" :category categories]
+          [receipt-dropdown "Vendor" :vendor vendors]
+          [receipt-dropdown "For Whom" :for-whom for-whom]
           [labelled-item {} "Comment"
            [Input {:multiline true
                    :numberOfLines 2}]]
           [Button {:transparent true
                    :primary true
                    :onPress #(js/alert (str "done! " @receipt))}
-           [Text "Submit"]]]]
+           [Text "Submit Receipt"]]]]
         [Tab {:heading "Edit"}
          [Text "Fake content 2"]
          [Button {:danger true
