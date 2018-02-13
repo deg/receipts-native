@@ -10,8 +10,6 @@
                            [reagent "0.7.0" :exclusions [cljsjs/react cljsjs/react-dom cljsjs/react-dom-server cljsjs/create-react-class]]
                            [re-frame "0.10.4"]
                            [react-native-externs "0.1.0"]
-                           [com.degel/iron "0.3.0-SNAPSHOT"]
-                           [com.degel/radon "0.1.0-SNAPSHOT"]
                            [com.degel/re-frame-firebase "0.5.0"]]
             :plugins [[lein-cljsbuild "1.1.4"]
                       [lein-figwheel "0.5.14"]]
