@@ -37,8 +37,5 @@
      (let [module (gensym "module-")]
        `(let [~module (js/require ~module-name)]
           ~@(map (fn [name]
-                   (if (map? name)
-                     (let [{:keys [name js-name]} name]
-                       `(def ~name (get-class ~module ~js-name)))
-                     `(def ~name (get-class ~module ~(str name)))))
+                   `(def ~name (get-class ~module ~(str name))))
                    names-and-classes)))))
