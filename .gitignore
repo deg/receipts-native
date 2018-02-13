@@ -1,9 +1,9 @@
 *.class
 *.jar
+*~
 .expo/*
 .hg/
 .hgignore
-/native-base-theme
 .js-modules.edn
 /.lein-*
 /.nrepl-port
@@ -13,6 +13,7 @@
 /env/dev/env/expo/dev.cljs
 /env/dev/env/expo/index.cljs
 /env/dev/env/index.cljs
+/native-base-theme
 /target
 figwheel_server.log
 main.js

@@ -1,24 +1,19 @@
 (ns receipts-native.core
+  (:require-macros [radon.core :refer [def-native-components]])
   (:require [cljs-time.core :as time]
             [cljs-time.coerce :refer [from-date to-date]]
             [oops.core :as oops]
             [reagent.core :as r]
             [reagent.impl.component :as ru]  ;; [TODO] ??
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]
+            [re-frame.loggers :refer [console]]
+            [radon.core :as radon :refer [get-class]]
             [receipts-native.handlers]
             [receipts-native.subs]))
 
 (defonce react-native (js/require "react-native"))
-(defonce native-base (js/require "native-base"))
 (defonce native-calendar-strip (js/require "react-native-calendar-strip"))
 
-
-(defn adapt-class [class]
-  (when class
-    (r/adapt-react-class class)))
-
-(defn get-class [module name]
-  (adapt-class (oops/oget+ module name)))
 
 
 (def app-registry (.-AppRegistry react-native))
@@ -27,28 +22,33 @@
 (def ScrollView (get-class react-native "ScrollView"))
 (def View (get-class react-native "View"))
 
-(def Body       (get-class native-base "Body"))
-(def Button     (get-class native-base "Button"))
-(def Container  (get-class native-base "Container"))
-(def Content    (get-class native-base "Content"))
-(def Footer     (get-class native-base "Footer"))
-(def FooterTab  (get-class native-base "FooterTab"))
-(def Form       (get-class native-base "Form"))
-(def Header     (get-class native-base "Header"))
-(def Icon       (get-class native-base "Icon"))
-(def Input      (get-class native-base "Input"))
-(def InputGroup (get-class native-base "InputGroup"))
-(def Item       (get-class native-base "Item"))
-(def Label      (get-class native-base "Label"))
-(def ListNB     (get-class native-base "List"))
-(def ListItem   (get-class native-base "ListItem"))
-(def Left       (get-class native-base "Left"))
-(def Picker     (get-class native-base "Picker"))
-(def Right      (get-class native-base "Right"))
-(def Tab        (get-class native-base "Tab"))
-(def Tabs       (get-class native-base "Tabs"))
-(def Text       (get-class native-base "Text"))
-(def Title      (get-class native-base "Title"))
+
+(defonce native-base (js/require "native-base"))  ;; [TODO] Figwheel seems to need this. Test/report/fix!
+(def-native-components
+  "native-base"
+  [Body
+   Button
+   Container
+   Content
+   Footer
+   FooterTab
+   Form
+   Header
+   Icon
+   Input
+   InputGroup
+   Item
+   Label
+   {:name ListNB :js-name "List" }
+   ListItem
+   Left
+   Picker
+   Right
+   Tab
+   Tabs
+   Text
+   Title])
+
 
 (def CalendarStrip (get-class native-calendar-strip "default"))
 

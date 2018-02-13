@@ -10,6 +10,8 @@
                            [reagent "0.7.0" :exclusions [cljsjs/react cljsjs/react-dom cljsjs/react-dom-server cljsjs/create-react-class]]
                            [re-frame "0.10.4"]
                            [react-native-externs "0.1.0"]
+                           [com.degel/iron "0.3.0-SNAPSHOT"]
+                           [com.degel/radon "0.1.0-SNAPSHOT"]
                            [com.degel/re-frame-firebase "0.5.0"]]
             :plugins [[lein-cljsbuild "1.1.4"]
                       [lein-figwheel "0.5.14"]]
@@ -24,9 +26,9 @@
             :profiles {:dev  {:dependencies [[binaryage/devtools "0.9.9"]
                                              [figwheel-sidecar "0.5.14"]
                                              [com.cemerick/piggieback "0.2.2"]]
-                              :source-paths ["src" "env/dev"]
+                              :source-paths ["src" "env/dev" "checkouts/iron/src" "checkouts/radon/src"]
                               :cljsbuild    {:builds [{:id           "main"
-                                                       :source-paths ["src" "env/dev"]
+                                                       :source-paths ["src" "env/dev" "checkouts/iron/src" "checkouts/radon/src"]
                                                        :figwheel     true
                                                        :compiler {:output-to     "target/expo/not-used.js"
                                                                   :main          "env.expo.main"
