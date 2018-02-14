@@ -4,9 +4,7 @@
 (ns receipts-native.macros
   #?(:cljs (:require-macros [radon.core :refer [def-native-components]]))
   (:require
-   [clojure.spec.alpha :as s]
    [oops.core :as oops]
-   [re-frame.loggers :refer [console]]
    [reagent.core :as r]))
 
 
@@ -15,9 +13,7 @@
      (defn adapt-class
        "Adapt React class for use as a Reagent component."
        [class]
-       (if class
-         (r/adapt-react-class class)
-         (console :error "React class " class " not found.")))
+       (r/adapt-react-class class))
 
      (defn get-class
        "Extract React class from JavaScript module and adapt as Reagent component."
@@ -27,15 +23,12 @@
 #?(:clj
    (defmacro def-native-components
      "Extract one or more React classes from a JavaScript module. Adapt them as Reagent components and name them.
-      Usage:
-      `(get-components \"native-base\" [Body Button {:name ListNB :js-name \"List\"}])`
 
       [TODO] Weird bug that the js/require here seems to crash figwheel, unless the same module was previously
-      require'd from .cljs. If this bug is real, I'll probably have to remove the require from this macro.
-      "
-     [module-name names-and-classes]
+      require'd from .cljs. If this bug is real, I'll probably have to remove the require from this macro."
+     [module-name names]
      (let [module (gensym "module-")]
        `(let [~module (js/require ~module-name)]
           ~@(map (fn [name]
                    `(def ~name (get-class ~module ~(str name))))
-                   names-and-classes)))))
+                   names)))))

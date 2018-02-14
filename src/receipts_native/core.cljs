@@ -1,59 +1,39 @@
 (ns receipts-native.core
   (:require-macros [receipts-native.macros :refer [def-native-components]])
-  (:require [cljs-time.core :as time]
-            [cljs-time.coerce :refer [from-date to-date]]
-            [oops.core :as oops]
-            [reagent.core :as r]
-            [reagent.impl.component :as ru]  ;; [TODO] ??
-            [re-frame.core :refer [subscribe dispatch dispatch-sync]]
-            [re-frame.loggers :refer [console]]
-            [receipts-native.macros :as radon :refer [get-class]]
-            [receipts-native.handlers]
-            [receipts-native.subs]))
+  (:require
+   [re-frame.core :refer [reg-event-db dispatch-sync]]
+   [reagent.core :as r]
+   [receipts-native.macros :as radon :refer [get-class]]))
 
 (defonce react-native (js/require "react-native"))
-
-
-
 (def app-registry (.-AppRegistry react-native))
-(def Alert (.-Alert react-native))
 
 
-(defonce native-base (js/require "native-base"))  ;; [TODO] Figwheel seems to need this. Test/report/fix!
+;;;  **************** {READ THIS} ****************
+;;; Restoring this next line removes the crash.
+;;; It seems that Figwheel (or something) is unhappy when module is first required in the
+;;; expansion of a macro???
+;;- (defonce native-base (js/require "native-base"))
+
 (def-native-components
   "native-base"
   [Body
-   Button
    Container
    Header
-   Icon
-   Left
-   Right
-   Tab
-   Tabs
    Title])
 
 
-(defn alert [content]
-  (.alert Alert (str "Alert: ")
-          content
-          (clj->js [{:text "dismiss" :onPress identity}])))
-
-
 (defn app-root []
-  (let [greeting (subscribe [:get-greeting])]
-    (fn []
+  (fn []
       [Container
-       [Header {:hasTabs true}
-        [Left
-         [Button {:transparent true :onPress #(alert "menu")}
-          [Icon {:name "menu"}]]]
+       [Header
         [Body
-         [Title "Receipts v4.0"]]
-        [Right]]
-       [Tabs
-        [Tab {:heading "Receipts"}
-         ]]])))
+         [Title "Receipts v4.0"]]]]))
+
+
+;; initial state of app-db
+(def app-db {})
+(reg-event-db :initialize-db (fn [_ _] app-db))
 
 (defn init []
   (dispatch-sync [:initialize-db])

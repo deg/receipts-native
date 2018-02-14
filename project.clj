@@ -6,11 +6,9 @@
             :dependencies [[org.clojure/clojure "1.9.0"]
                            [org.clojure/clojurescript "1.9.946"]
                            [binaryage/oops "0.5.8"]
-                           [com.andrewmcveigh/cljs-time "0.5.2"]
                            [reagent "0.7.0" :exclusions [cljsjs/react cljsjs/react-dom cljsjs/react-dom-server cljsjs/create-react-class]]
                            [re-frame "0.10.4"]
-                           [react-native-externs "0.1.0"]
-                           [com.degel/re-frame-firebase "0.5.0"]]
+                           [react-native-externs "0.1.0"]]
             :plugins [[lein-cljsbuild "1.1.4"]
                       [lein-figwheel "0.5.14"]]
             :clean-targets ["target/" "main.js"]
@@ -24,9 +22,9 @@
             :profiles {:dev  {:dependencies [[binaryage/devtools "0.9.9"]
                                              [figwheel-sidecar "0.5.14"]
                                              [com.cemerick/piggieback "0.2.2"]]
-                              :source-paths ["src" "env/dev" "checkouts/iron/src" "checkouts/radon/src"]
+                              :source-paths ["src" "env/dev"]
                               :cljsbuild    {:builds [{:id           "main"
-                                                       :source-paths ["src" "env/dev" "checkouts/iron/src" "checkouts/radon/src"]
+                                                       :source-paths ["src" "env/dev"]
                                                        :figwheel     true
                                                        :compiler {:output-to     "target/expo/not-used.js"
                                                                   :main          "env.expo.main"
